@@ -1,0 +1,15 @@
+# VCS and local metadata
+.git
+.gitignore
+.DS_Store
+.AppleDouble
+._*
+
+# Docs that describe internal infrastructure: never ship them in the image
+understanding.md
+*.md
+!README.md
+
+# Secrets and local env files
+*.env
+.env.*
