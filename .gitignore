@@ -12,7 +12,6 @@
 *~
 
 # Local notes and secrets
-understanding.md
 *.env
 .env.*
 
