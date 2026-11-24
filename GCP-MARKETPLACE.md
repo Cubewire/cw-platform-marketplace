@@ -78,7 +78,7 @@ Work through this in order for every release.
 - [ ] The chart creates an Application resource, uses only beta or GA APIs, and puts everything in one namespace.
 - [ ] Namespace, application name and every image reference are parameters.
 - [ ] Images run on x86 (`linux/amd64`).
-- [ ] Every image carries the annotation `com.googleapis.cloudmarketplace.product.service.name=services/<service name>`. The service name is on the Producer Portal Overview page.
+- [ ] Every image (the deployer and every application image) carries the manifest annotation `com.googleapis.cloudmarketplace.product.service.name=services/<service name>` (section 4). If it is missing, the functionality test fails with `Missing annotation ... in manifest of image: <image>`.
 - [ ] Integration tests exist (a tester Pod that exits 0).
 - [ ] A user guide exists (deployment, configuration, usage).
 - [ ] The public repo has a `LICENSE`.
@@ -96,20 +96,35 @@ docker buildx create --name ghlike --driver docker-container --use   # once
 R=<repo>
 V=X.Y.Z
 T=X.Y
+SVC="services/<service name>"     # see "Service name annotation" below
+ANN="manifest:com.googleapis.cloudmarketplace.product.service.name=$SVC"
 
-# Deployer (default target of the Dockerfile)
+# Deployer (default target of the Dockerfile). Both tags are pushed by one build,
+# so they always share a digest.
 docker buildx build --builder ghlike --platform linux/amd64 \
   --provenance=false --sbom=false --build-arg VERSION=$T \
-  --output "type=image,name=$R/deployer:$T,push=true,oci-mediatypes=false" .
+  --annotation "$ANN" \
+  --output "type=image,\"name=$R/deployer:$T,$R/deployer:$V\",push=true,oci-mediatypes=true" .
 ```
+
+Build every application image the same way: same `--annotation "$ANN"`, same `oci-mediatypes=true`, names `$R/<image>:$T,$R/<image>:$V`.
 
 For a clean rebuild that picks up the newest base images, add `--no-cache --pull`.
 
-To give an application image a second tag at the same digest, tag it in the registry. Do not re-run `imagetools create`, which wraps the manifest in a new index and changes the digest:
+To add a second tag to an image that is already pushed, tag it in the registry. Do not re-run `imagetools create`, which wraps the manifest in a new index and changes the digest:
 
 ```bash
 gcloud container images add-tag "$R/<image>:$T" "$R/<image>:$V" --quiet
 ```
+
+### Service name annotation
+
+Every image must carry the annotation `com.googleapis.cloudmarketplace.product.service.name` with the value `services/<service name>`.
+
+- **Where the annotation goes.** It is a manifest annotation, not a Dockerfile `LABEL`. A Docker v2 manifest has no annotations field, so the image must be pushed with OCI media types (`oci-mediatypes=true`) and `--annotation "manifest:<key>=<value>"`. Single-platform images carry it on the image manifest. A multi-platform image would need it on each manifest as well.
+- **Service name.** It is shown in the Producer Portal on the Overview page, in the Service name column. It can also be listed from the command line: `gcloud endpoints services list --project <project>`. Pick the entry that matches the product's URL segment.
+- **Every image, every release.** Rebuilding an image or adding a new image resets this: pass `--annotation` each time. Retagging an existing digest with `add-tag` keeps the annotation.
+- **Rebuilding changes the digest.** After adding the annotation (or any rebuild) the portal must be pointed at the new deployer digest: retry or re-propose the release.
 
 ## 5. Verify
 
@@ -119,6 +134,10 @@ R=<repo>
 # Digests: the two tags of an application image must match
 docker buildx imagetools inspect $R/<image>:X.Y   | sed -n 3p
 docker buildx imagetools inspect $R/<image>:X.Y.Z | sed -n 3p
+
+# The service name annotation is in the manifest (expect services/<service name>)
+docker buildx imagetools inspect $R/<image>:X.Y.Z --raw \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("annotations"))'
 
 # Tag history of a repository
 gcloud container images list-tags $R/deployer --filter='tags:*'
@@ -168,11 +187,12 @@ Detailed deployer, schema and verification docs are in the GitHub repo [marketpl
 
 Worked examples: [click-to-deploy `k8s/`](https://github.com/GoogleCloudPlatform/click-to-deploy/tree/master/k8s)
 
-## 8. Lessons from earlier releases
+## 8. Important Checkpoints
 
 - **Tags must exist for every image at `publishedVersion`.** Tagging only the track (`X.Y`) fails the functionality test.
 - **The deployer must be a real Marketplace deployer.** An image without `/data/schema.yaml` and the deploy tooling fails schema extraction.
-- **Single-platform images only.** Use a single-platform Docker v2 manifest (`--provenance=false --sbom=false`). A multi-architecture index with attestation manifests was not accepted by the schema extraction.
+- **The service name annotation is checked on every image.** The portal reads it from the manifest of each image named in the schema and fails the functionality test if it is missing (`Missing annotation ... in manifest of image`). Docker v2 manifests cannot carry it, so push OCI manifests with `--annotation`.
+- **Publish single-platform `linux/amd64` images** with `--provenance=false --sbom=false`. Marketplace only requires x86, and this keeps each tag a single manifest with a single digest.
 - **The portal pins a digest.** After rebuilding a tag, retry or re-propose the release.
 - **Check before pushing a tag.** Look at the existing tags in every repository first, so an earlier release is never overwritten.
 - **Verify with `--pull always`.** Docker otherwise runs a stale local copy, and so does Docker Scout.
