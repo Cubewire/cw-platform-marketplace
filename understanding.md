@@ -75,9 +75,21 @@ Last known results (2026-11-24):
 
 ## Google Cloud Marketplace producer portal
 
-- Portal URL: `TODO`
-- Product / listing ID: `TODO`
-- Deployer image reference in the listing: `gcr.io/cubewire/cubewire-platform-marketplace/deployer:1.1` (default release, display tag `1.1`), plus `1.0` as a second release.
+- Listing details page: `https://console.cloud.google.com/marketplace/product/cubewire/cubewire-p8`
+- Product / listing ID: URL segment `cubewire-p8` (project `cubewire`)
+- Status: **already published**. The portal warns that changing product info requires approval and republishing. A banner shows a review with update time "Apr 20" (the text is cut off in the screenshot).
+- Product info (as shown in the portal):
+  - Name: `Cubewire`
+  - Tagline: "Driving Web3 Adoption for the next phase of digital finance" (60 chars)
+  - Overview: 382 chars, starting "Cubewire is a unified platform driving digital asset adoption with institutional-grade solutions…"
+  - Link to more info: `https://www.cubewire.com/`
+  - Category: Blockchain and Data
+  - Industry: Financial Services and Insurance
+  - Support description: "For technical support, deployment assistance, and general enquiries, contact the Cubewire team at support@cubewire.com or visit…"
+  - Support URL: `https://cubewire.atlassian.net/servicedesk/customer/portals`
+  - Search keywords: blockchain payments, stablecoin, digital wallet, payment infrastructure, Web3, enterprise payments, wallet as a service, L2 blockchain
+  - Product searchable: on
+- Deployer image reference in the listing: `gcr.io/cubewire/cubewire-platform-marketplace/deployer:1.1` (default release, display tag `1.1`), plus `1.0` as a second release. These are the portal's values from the earlier screenshot, before the `1.1` tag move.
 - Last run (2026-11-23, against `1.0.0`'s multi-arch digest): schema extraction and test deployment failed with "Image not found" for `sha256:99a23c…`. The image resolves from our account, and the repo grants `roles/artifactregistry.reader` to `cloud-commerce-partner@system.gserviceaccount.com`. Likely cause: the extractor doesn't handle the OCI index with attestation manifests. Not yet confirmed.
 - Retry after the `1.1` move to `sha256:304911…`: `TODO` (record result here)
 - Publish process and owners: `TODO`
