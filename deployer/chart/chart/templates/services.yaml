@@ -1,0 +1,235 @@
+{{- /* KMS Service */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-wallet-kms
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-wallet-kms
+spec:
+  replicas: {{ .Values.kms.replicas }}
+  selector:
+    matchLabels:
+      app: cw-wallet-kms
+  template:
+    metadata:
+      labels:
+        app: cw-wallet-kms
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cw-wallet-kms
+          image: "{{ .Values.kms.image.repository }}:{{ .Values.kms.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.kms.port }}"
+          ports:
+            - containerPort: {{ .Values.kms.port }}
+          resources:
+            {{- toYaml .Values.kms.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-wallet-kms
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-wallet-kms
+  ports:
+    - port: {{ .Values.kms.port }}
+      targetPort: {{ .Values.kms.port }}
+---
+{{- /* Transactions Service */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-wallet-transactions
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-wallet-transactions
+spec:
+  replicas: {{ .Values.transactions.replicas }}
+  selector:
+    matchLabels:
+      app: cw-wallet-transactions
+  template:
+    metadata:
+      labels:
+        app: cw-wallet-transactions
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cw-wallet-transactions
+          image: "{{ .Values.transactions.image.repository }}:{{ .Values.transactions.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.transactions.port }}"
+          ports:
+            - containerPort: {{ .Values.transactions.port }}
+          resources:
+            {{- toYaml .Values.transactions.resources | nindent 12 }}
+        {{- if .Values.cloudSql.connectionName }}
+        {{- include "cubewire.cloudSqlProxy" . | nindent 8 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-wallet-transactions
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-wallet-transactions
+  ports:
+    - port: {{ .Values.transactions.port }}
+      targetPort: {{ .Values.transactions.port }}
+---
+{{- /* Policy Engine Service */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-wallet-policy-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-wallet-policy-engine
+spec:
+  replicas: {{ .Values.policyEngine.replicas }}
+  selector:
+    matchLabels:
+      app: cw-wallet-policy-engine
+  template:
+    metadata:
+      labels:
+        app: cw-wallet-policy-engine
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cw-wallet-policy-engine
+          image: "{{ .Values.policyEngine.image.repository }}:{{ .Values.policyEngine.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.policyEngine.port }}"
+          ports:
+            - containerPort: {{ .Values.policyEngine.port }}
+          resources:
+            {{- toYaml .Values.policyEngine.resources | nindent 12 }}
+        {{- if .Values.cloudSql.connectionName }}
+        {{- include "cubewire.cloudSqlProxy" . | nindent 8 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-wallet-policy-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-wallet-policy-engine
+  ports:
+    - port: {{ .Values.policyEngine.port }}
+      targetPort: {{ .Values.policyEngine.port }}
+---
+{{- /* Transaction Orchestrator */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-transaction-orch
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-transaction-orch
+spec:
+  replicas: {{ .Values.transactionOrch.replicas }}
+  selector:
+    matchLabels:
+      app: cw-transaction-orch
+  template:
+    metadata:
+      labels:
+        app: cw-transaction-orch
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cw-transaction-orch
+          image: "{{ .Values.transactionOrch.image.repository }}:{{ .Values.transactionOrch.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.transactionOrch.port }}"
+          ports:
+            - containerPort: {{ .Values.transactionOrch.port }}
+          resources:
+            {{- toYaml .Values.transactionOrch.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-transaction-orch
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-transaction-orch
+  ports:
+    - port: {{ .Values.transactionOrch.port }}
+      targetPort: {{ .Values.transactionOrch.port }}
+---
+{{- /* Webhook Dispatcher */ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-webhook-dispatcher
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-webhook-dispatcher
+spec:
+  replicas: {{ .Values.webhookDispatcher.replicas }}
+  selector:
+    matchLabels:
+      app: cw-webhook-dispatcher
+  template:
+    metadata:
+      labels:
+        app: cw-webhook-dispatcher
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cw-webhook-dispatcher
+          image: "{{ .Values.webhookDispatcher.image.repository }}:{{ .Values.webhookDispatcher.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.webhookDispatcher.port }}"
+          ports:
+            - containerPort: {{ .Values.webhookDispatcher.port }}
+          resources:
+            {{- toYaml .Values.webhookDispatcher.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-webhook-dispatcher
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-webhook-dispatcher
+  ports:
+    - port: {{ .Values.webhookDispatcher.port }}
+      targetPort: {{ .Values.webhookDispatcher.port }}

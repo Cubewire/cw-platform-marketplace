@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cw-wallet-webapp-sa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-wallet-webapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-wallet-webapp
+spec:
+  replicas: {{ .Values.webapp.replicas }}
+  selector:
+    matchLabels:
+      app: cw-wallet-webapp
+  template:
+    metadata:
+      labels:
+        app: cw-wallet-webapp
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: cw-wallet-webapp-sa
+      containers:
+        - name: cw-wallet-webapp
+          image: "{{ .Values.webapp.image.repository }}:{{ .Values.webapp.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.webapp.port }}"
+          ports:
+            - containerPort: {{ .Values.webapp.port }}
+          resources:
+            {{- toYaml .Values.webapp.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.webapp.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-wallet-webapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  type: LoadBalancer
+  selector:
+    app: cw-wallet-webapp
+  ports:
+    - port: 80
+      targetPort: {{ .Values.webapp.port }}

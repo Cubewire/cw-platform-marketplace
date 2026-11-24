@@ -1,0 +1,103 @@
+x-google-marketplace:
+  schemaVersion: v2
+  applicationApiVersion: v1beta1
+  publishedVersion: "1.0.0"
+  publishedVersionMetadata:
+    releaseNote: >-
+      Initial release of Cubewire Platform on Google Cloud Marketplace.
+  managedUpdates:
+    kalmSupported: false
+  clusterConstraints:
+    resources:
+      - replicas: 1
+        requests:
+          cpu: 2000m
+          memory: 4Gi
+
+  images:
+    '':
+      properties:
+        backend.image.repository:
+          type: REPO_WITH_REGISTRY
+        backend.image.tag:
+          type: TAG
+    webapp:
+      properties:
+        webapp.image.repository:
+          type: REPO_WITH_REGISTRY
+        webapp.image.tag:
+          type: TAG
+    kms:
+      properties:
+        kms.image.repository:
+          type: REPO_WITH_REGISTRY
+        kms.image.tag:
+          type: TAG
+    transactions:
+      properties:
+        transactions.image.repository:
+          type: REPO_WITH_REGISTRY
+        transactions.image.tag:
+          type: TAG
+    policy-engine:
+      properties:
+        policyEngine.image.repository:
+          type: REPO_WITH_REGISTRY
+        policyEngine.image.tag:
+          type: TAG
+    transaction-orch:
+      properties:
+        transactionOrch.image.repository:
+          type: REPO_WITH_REGISTRY
+        transactionOrch.image.tag:
+          type: TAG
+    webhook-dispatcher:
+      properties:
+        webhookDispatcher.image.repository:
+          type: REPO_WITH_REGISTRY
+        webhookDispatcher.image.tag:
+          type: TAG
+
+properties:
+  name:
+    type: string
+    x-google-marketplace:
+      type: NAME
+  namespace:
+    type: string
+    x-google-marketplace:
+      type: NAMESPACE
+
+  backendReplicas:
+    type: integer
+    title: Backend Replicas
+    description: Number of wallet backend replicas
+    default: 1
+    minimum: 1
+    maximum: 10
+
+  webappReplicas:
+    type: integer
+    title: Webapp Replicas
+    description: Number of webapp replicas
+    default: 1
+    minimum: 1
+    maximum: 10
+
+  cloudSqlConnectionName:
+    type: string
+    title: Cloud SQL Connection Name
+    description: >-
+      Cloud SQL instance connection name
+      (e.g. project:region:instance)
+    default: ""
+
+  webappDomain:
+    type: string
+    title: Webapp Domain
+    description: Domain name for the webapp (e.g. app.example.com)
+    default: ""
+
+required:
+  - name
+  - namespace

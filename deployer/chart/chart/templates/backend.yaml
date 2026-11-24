@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cw-wallet-backend-sa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cw-wallet-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+    app: cw-wallet-backend
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: cw-wallet-backend
+  template:
+    metadata:
+      labels:
+        app: cw-wallet-backend
+        {{- include "cubewire.podLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: cw-wallet-backend-sa
+      containers:
+        - name: cw-wallet-backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "{{ .Values.backend.port }}"
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 5
+        {{- if .Values.cloudSql.connectionName }}
+        {{- include "cubewire.cloudSqlProxy" . | nindent 8 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cw-wallet-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cubewire.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: cw-wallet-backend
+  ports:
+    - port: {{ .Values.backend.port }}
+      targetPort: {{ .Values.backend.port }}
