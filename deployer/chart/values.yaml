@@ -1,0 +1,102 @@
+backend:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 3000
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "768Mi"
+      cpu: "500m"
+
+webapp:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 3000
+  domain: ""
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+kms:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 3000
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+transactions:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 3002
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+policyEngine:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 50052
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+transactionOrch:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 3000
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+webhookDispatcher:
+  image:
+    repository: ""
+    tag: ""
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+cloudSql:
+  connectionName: ""
+  proxyImage: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.8.0
