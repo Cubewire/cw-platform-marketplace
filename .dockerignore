@@ -5,10 +5,8 @@
 .AppleDouble
 ._*
 
-# Docs that describe internal infrastructure: never ship them in the image
-understanding.md
+# Internal docs: never ship them in an image
 *.md
-!README.md
 
 # Secrets and local env files
 *.env

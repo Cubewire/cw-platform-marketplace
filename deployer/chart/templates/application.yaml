@@ -10,7 +10,7 @@ metadata:
 spec:
   descriptor:
     type: CubewirePlatform
-    version: "1.0.0"
+    version: "1.1.0"
     description: >-
       Cubewire Platform - Enterprise-grade Web3 infrastructure for
       secure, scalable payment and digital asset applications.

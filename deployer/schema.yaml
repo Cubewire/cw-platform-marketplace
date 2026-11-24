@@ -1,10 +1,10 @@
 x-google-marketplace:
   schemaVersion: v2
   applicationApiVersion: v1beta1
-  publishedVersion: "1.0.0"
+  publishedVersion: "1.1.0"
   publishedVersionMetadata:
     releaseNote: >-
-      Initial release of Cubewire Platform on Google Cloud Marketplace.
+      Cubewire Platform 1.1 on Google Cloud Marketplace.
   managedUpdates:
     kalmSupported: false
   clusterConstraints:
