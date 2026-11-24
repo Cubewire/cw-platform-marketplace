@@ -152,8 +152,8 @@ The overview page of the Kubernetes partner section was not read, so this map is
 |---|---|
 | Project | `cubewire` (number `451870470897`) |
 | Registry | `gcr.io`, an Artifact Registry repo in location `us` |
-| Deployer | `gcr.io/cubewire/cubewire-platform-marketplace/deployer:1.1` → `sha256:c146f20812f706044a2a553e3edd054170368013afe63df2b1ad07c3f4cfb001` |
-| Stub app images, all seven paths | `:1.1` → `sha256:83c2878f7618f65705aff7f0c47887b05dd5798d34d491bcd03b6b0b5c506074` |
+| Deployer | `gcr.io/cubewire/cubewire-platform-marketplace/deployer:1.1` → `sha256:2c151b3a31a2445d022f825b56f6f834e0f31a499d00410a452538fa54f9e862` |
+| Stub app images, all seven paths | `:1.1` → `sha256:f3f072ed61643029f4d2b71cccc9eb74440f6a7d3df8945a5251393c9b6cedfc` |
 | Format | single platform `linux/amd64`, Docker v2 manifest, no attestations |
 
 Other tags in the same repositories, for reference:
